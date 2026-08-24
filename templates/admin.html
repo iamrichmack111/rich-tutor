@@ -28,6 +28,11 @@
 <thead><tr><th>Student</th><th>Username</th><th>Time</th><th>Average grade</th><th>Grades</th><th></th></tr></thead>
 <tbody>{% for r in stats %}<tr><td>{{r.display_name}}</td><td>{{r.username}}</td>
 <td>{{(r.seconds/3600)|round(2)}} h</td><td>{{r.avg_grade|round(1)}}%</td><td>{{r.grade_count}}</td>
-<td><a href="/admin/student/{{r.id}}">Report →</a></td></tr>{% endfor %}</tbody>
+<td><a href="/admin/student/{{r.id}}">Report</a> · <a href="/admin/user/{{r.id}}">Manage</a></td></tr>{% endfor %}</tbody>
 </table></div></section>
 {% endblock %}
+
+<section class="panel"><h2>Parent accounts</h2><div class="table-wrap"><table>
+<thead><tr><th>Parent</th><th>Username</th><th></th></tr></thead>
+<tbody>{% for p in parents %}<tr><td>{{p.display_name}}</td><td>{{p.username}}</td><td><a href="/admin/user/{{p.id}}">Manage →</a></td></tr>{% endfor %}</tbody>
+</table></div></section>

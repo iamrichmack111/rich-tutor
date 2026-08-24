@@ -133,3 +133,9 @@ linear-gradient(145deg,#0b121a,#080d13);overflow:hidden}
 /* PUBLIC_ACCESS_GATE_V9 */
 .public-access-note{display:flex;align-items:center;justify-content:space-between;gap:18px;background:#0c151e;border:1px solid var(--line);border-radius:18px;padding:18px 20px;margin:-18px 0 32px}.public-access-note div{display:grid;gap:4px}.public-access-note strong{font-size:1.05rem}.public-access-note span{color:var(--muted);line-height:1.45}
 @media(max-width:650px){.public-access-note{align-items:flex-start;flex-direction:column}}
+
+/* USER_MANAGEMENT_V10 */
+.link-row{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}
+.inline-form{display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap}
+.inline-form select{background:#081018;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px}
+.danger-btn{border:1px solid #653036;background:#2a1114;color:#ffb4ba;padding:8px 12px;border-radius:9px;cursor:pointer}

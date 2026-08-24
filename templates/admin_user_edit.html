@@ -1,0 +1,64 @@
+
+{% extends "base.html" %}{% block title %}Edit {{user.display_name}} • Rich Tutor{% endblock %}
+{% block content %}
+<a class="back" href="/admin">← Admin</a>
+<section class="lesson-hero">
+<div><p class="eyebrow">USER MANAGEMENT</p><h1>{{user.display_name}}</h1>
+<p class="lede">{{user.role|title}} account • {{user.username}}</p></div>
+</section>
+
+<div class="admin-grid">
+<section class="panel">
+<h2>Account</h2>
+<form method="post" class="stack-form">
+<label>Display name<input name="display_name" value="{{user.display_name}}"></label>
+<label>Status
+<select name="active">
+<option value="1" {% if user.active %}selected{% endif %}>Active</option>
+<option value="0" {% if not user.active %}selected{% endif %}>Disabled</option>
+</select>
+</label>
+<button class="primary">Save account</button>
+</form>
+</section>
+
+<section class="panel">
+<h2>Reset password</h2>
+<p class="muted">The user will be forced to choose a new password at next login.</p>
+<form method="post" action="/admin/user/{{user.id}}/reset-password" class="stack-form">
+<label>Temporary password<input name="new_password" value="student"></label>
+<button class="secondary">Reset password</button>
+</form>
+</section>
+</div>
+
+{% if user.role=="student" %}
+<section class="panel">
+<h2>Linked parents</h2>
+{% for p in linked_parents %}
+<div class="link-row"><span>{{p.display_name}} ({{p.username}})</span>
+<form method="post" action="/admin/user/{{user.id}}/unlink-parent/{{p.id}}"><button class="danger-btn">Unlink</button></form></div>
+{% else %}<p class="muted">No parents linked.</p>{% endfor %}
+
+<form method="post" action="/admin/user/{{user.id}}/link-parent" class="inline-form">
+<select name="parent_id">{% for p in all_parents %}<option value="{{p.id}}">{{p.display_name}}</option>{% endfor %}</select>
+<button class="secondary">Link parent</button>
+</form>
+</section>
+{% endif %}
+
+{% if user.role=="parent" %}
+<section class="panel">
+<h2>Linked students</h2>
+{% for s in linked_students %}
+<div class="link-row"><span>{{s.display_name}} ({{s.username}})</span>
+<form method="post" action="/admin/user/{{user.id}}/unlink-student/{{s.id}}"><button class="danger-btn">Unlink</button></form></div>
+{% else %}<p class="muted">No students linked.</p>{% endfor %}
+
+<form method="post" action="/admin/user/{{user.id}}/link-student" class="inline-form">
+<select name="student_id">{% for s in all_students %}<option value="{{s.id}}">{{s.display_name}}</option>{% endfor %}</select>
+<button class="secondary">Link student</button>
+</form>
+</section>
+{% endif %}
+{% endblock %}

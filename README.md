@@ -165,3 +165,13 @@ Admin and Parent portals retain their role-specific access controls.
 Rich Tutor is containerized for production with Docker Compose, localhost-only
 port binding, persistent `./data:/app/data`, Gunicorn, `/health`, deployment
 scripts, and GitHub Actions CI/CD. See `DEPLOYMENT.md`.
+
+
+## V10: account management
+
+- Admin-created parent/student accounts get `must_change_password=1`.
+- First successful login forces a password change before accessing the app.
+- Invite-created users choose their own password and are not forced to change it.
+- Admin can manage any parent/student account, disable/enable it, reset its password,
+  and link/unlink parent/student relationships.
+- Password resets force a new password on the next login.

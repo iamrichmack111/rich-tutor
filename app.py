@@ -28,6 +28,7 @@ def init_db():
       role TEXT NOT NULL CHECK(role IN ('admin','parent','student')),
       display_name TEXT NOT NULL,
       active INTEGER NOT NULL DEFAULT 1,
+      must_change_password INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL
     );
 
@@ -76,10 +77,15 @@ def init_db():
       created_at TEXT NOT NULL
     );
     """)
+    cols = {r["name"] for r in conn.execute("PRAGMA table_info(users)").fetchall()}
+    if "must_change_password" not in cols:
+        conn.execute("ALTER TABLE users ADD COLUMN must_change_password INTEGER NOT NULL DEFAULT 0")
+        conn.commit()
+
     row = conn.execute("SELECT id FROM users WHERE username='admin'").fetchone()
     if not row:
         conn.execute(
-            "INSERT INTO users(username,password_hash,role,display_name,created_at) VALUES(?,?,?,?,?)",
+            "INSERT INTO users(username,password_hash,role,display_name,must_change_password,created_at) VALUES(?,?,?,?,?,?)",
             (os.environ.get("ADMIN_USERNAME","admin"), generate_password_hash(os.environ.get("ADMIN_PASSWORD","admin")), "admin", "Administrator", datetime.now(timezone.utc).isoformat())
         )
     conn.commit()
@@ -114,6 +120,18 @@ def _startup():
 @app.context_processor
 def inject_user():
     return {"auth_user": current_user()}
+
+@app.before_request
+def _force_password_change():
+    u = current_user()
+    if not u or not u["must_change_password"]:
+        return None
+    allowed = {
+        "login", "logout", "change_password", "static",
+        "accept_invite", "health"
+    }
+    if request.endpoint not in allowed:
+        return redirect("/account/change-password")
 
 @app.route("/login", methods=["GET","POST"])
 def login():
@@ -207,6 +225,32 @@ def curriculum():
 def roadmap():
     return render_template("roadmap.html")
 
+
+@app.route("/account/change-password", methods=["GET","POST"])
+def change_password():
+    u=current_user()
+    if not u: return redirect("/login")
+    if request.method=="POST":
+        current=request.form.get("current_password","")
+        new=request.form.get("new_password","")
+        confirm=request.form.get("confirm_password","")
+        if len(new)<8:
+            return render_template("change_password.html", error="New password must be at least 8 characters.")
+        if new != confirm:
+            return render_template("change_password.html", error="New passwords do not match.")
+        if not check_password_hash(u["password_hash"], current):
+            return render_template("change_password.html", error="Current password is incorrect.")
+        conn=db()
+        conn.execute(
+            "UPDATE users SET password_hash=?,must_change_password=0 WHERE id=?",
+            (generate_password_hash(new),u["id"])
+        )
+        conn.commit(); conn.close()
+        if u["role"]=="admin": return redirect("/admin")
+        if u["role"]=="parent": return redirect("/parent")
+        return redirect("/")
+    return render_template("change_password.html")
+
 # ---------------- ADMIN ----------------
 @app.route("/admin")
 def admin_dashboard():
@@ -242,8 +286,8 @@ def admin_create_user():
     conn=db()
     try:
         cur=conn.execute(
-          "INSERT INTO users(username,password_hash,role,display_name,created_at) VALUES(?,?,?,?,?)",
-          (username,generate_password_hash(password),role,display,datetime.now(timezone.utc).isoformat())
+          "INSERT INTO users(username,password_hash,role,display_name,must_change_password,created_at) VALUES(?,?,?,?,?,?)",
+          (username,generate_password_hash(password),role,display,1,datetime.now(timezone.utc).isoformat())
         )
         new_id=cur.lastrowid
         if role=="student":
@@ -278,6 +322,96 @@ def admin_student(sid):
     mastery=conn.execute("SELECT * FROM mastery WHERE student_id=? ORDER BY score DESC",(sid,)).fetchall()
     conn.close()
     return render_template("student_report.html", student=student, grades=grades, sessions=sessions_, mastery=mastery, lessons=lessons, portal="admin")
+
+
+@app.route("/admin/user/<int:uid>", methods=["GET","POST"])
+def admin_edit_user(uid):
+    admin=require_role("admin")
+    if not admin: return redirect("/login")
+    conn=db()
+    user=conn.execute("SELECT * FROM users WHERE id=?",(uid,)).fetchone()
+    if not user:
+        conn.close(); abort(404)
+
+    if request.method=="POST":
+        display=request.form.get("display_name","").strip() or user["display_name"]
+        active=1 if request.form.get("active")=="1" else 0
+        conn.execute("UPDATE users SET display_name=?,active=? WHERE id=?",(display,active,uid))
+        conn.commit()
+
+    linked_parents=conn.execute("""
+      SELECT p.* FROM users p
+      JOIN parent_students ps ON ps.parent_id=p.id
+      WHERE ps.student_id=? ORDER BY p.display_name
+    """,(uid,)).fetchall() if user["role"]=="student" else []
+
+    linked_students=conn.execute("""
+      SELECT s.* FROM users s
+      JOIN parent_students ps ON ps.student_id=s.id
+      WHERE ps.parent_id=? ORDER BY s.display_name
+    """,(uid,)).fetchall() if user["role"]=="parent" else []
+
+    all_parents=conn.execute("SELECT * FROM users WHERE role='parent' AND active=1 ORDER BY display_name").fetchall()
+    all_students=conn.execute("SELECT * FROM users WHERE role='student' AND active=1 ORDER BY display_name").fetchall()
+    conn.close()
+    return render_template(
+        "admin_user_edit.html", user=user, linked_parents=linked_parents,
+        linked_students=linked_students, all_parents=all_parents,
+        all_students=all_students
+    )
+
+@app.route("/admin/user/<int:uid>/reset-password", methods=["POST"])
+def admin_reset_password(uid):
+    admin=require_role("admin")
+    if not admin: return redirect("/login")
+    new=request.form.get("new_password","").strip() or "student"
+    if len(new)<4:
+        new="student"
+    conn=db()
+    conn.execute(
+        "UPDATE users SET password_hash=?,must_change_password=1 WHERE id=?",
+        (generate_password_hash(new),uid)
+    )
+    conn.commit(); conn.close()
+    return redirect(f"/admin/user/{uid}")
+
+@app.route("/admin/user/<int:uid>/unlink-parent/<int:parent_id>", methods=["POST"])
+def admin_unlink_parent(uid,parent_id):
+    admin=require_role("admin")
+    if not admin: return redirect("/login")
+    conn=db()
+    conn.execute("DELETE FROM parent_students WHERE student_id=? AND parent_id=?",(uid,parent_id))
+    conn.commit(); conn.close()
+    return redirect(f"/admin/user/{uid}")
+
+@app.route("/admin/user/<int:uid>/link-parent", methods=["POST"])
+def admin_link_parent_to_student(uid):
+    admin=require_role("admin")
+    if not admin: return redirect("/login")
+    parent_id=request.form.get("parent_id")
+    conn=db()
+    conn.execute("INSERT OR IGNORE INTO parent_students(parent_id,student_id) VALUES(?,?)",(parent_id,uid))
+    conn.commit(); conn.close()
+    return redirect(f"/admin/user/{uid}")
+
+@app.route("/admin/user/<int:uid>/link-student", methods=["POST"])
+def admin_link_student_to_parent(uid):
+    admin=require_role("admin")
+    if not admin: return redirect("/login")
+    student_id=request.form.get("student_id")
+    conn=db()
+    conn.execute("INSERT OR IGNORE INTO parent_students(parent_id,student_id) VALUES(?,?)",(uid,student_id))
+    conn.commit(); conn.close()
+    return redirect(f"/admin/user/{uid}")
+
+@app.route("/admin/user/<int:uid>/unlink-student/<int:student_id>", methods=["POST"])
+def admin_unlink_student(uid,student_id):
+    admin=require_role("admin")
+    if not admin: return redirect("/login")
+    conn=db()
+    conn.execute("DELETE FROM parent_students WHERE parent_id=? AND student_id=?",(uid,student_id))
+    conn.commit(); conn.close()
+    return redirect(f"/admin/user/{uid}")
 
 # ---------------- PARENT ----------------
 @app.route("/parent")
@@ -370,9 +504,9 @@ def accept_invite(token):
             return render_template("invite_accept.html", invite=inv, unavailable=False, error="Use a username of at least 2 characters and a password of at least 4 characters.")
         try:
             cur=conn.execute("""
-              INSERT INTO users(username,password_hash,role,display_name,created_at)
-              VALUES(?,?,?,?,?)
-            """,(username,generate_password_hash(password),inv["role"],display,now.isoformat()))
+              INSERT INTO users(username,password_hash,role,display_name,must_change_password,created_at)
+              VALUES(?,?,?,?,?,?)
+            """,(username,generate_password_hash(password),inv["role"],display,0,now.isoformat()))
             uid=cur.lastrowid
             if inv["role"]=="student" and inv["parent_id"]:
                 conn.execute("INSERT OR IGNORE INTO parent_students(parent_id,student_id) VALUES(?,?)",(inv["parent_id"],uid))
