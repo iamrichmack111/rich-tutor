@@ -1,0 +1,61 @@
+direction: right
+
+admin: {
+  label: "Administrator"
+  shape: person
+}
+
+invite: {
+  label: "Invite Link"
+}
+
+manual: {
+  label: "Admin-Created\nAccount"
+}
+
+temporary: {
+  label: "Temporary Password"
+}
+
+forced: {
+  label: "Forced Password\nChange"
+}
+
+student: {
+  label: "Student Account"
+}
+
+parent: {
+  label: "Parent Account"
+}
+
+relationship: {
+  label: "parent_students"
+  shape: sql_table
+
+  parent_id: "parent_id"
+  student_id: "student_id"
+}
+
+progress: {
+  label: "Grades + Mastery +\nTracked Study Time"
+  shape: cylinder
+}
+
+admin -> manual
+admin -> invite
+
+manual -> temporary
+temporary -> forced
+forced -> student
+forced -> parent
+
+invite -> student: "student invite"
+invite -> parent: "parent invite"
+
+parent -> relationship
+relationship -> student
+
+student -> progress
+parent -> progress: "read linked records"
+admin -> progress: "administration/reporting"

@@ -1,0 +1,8 @@
+{
+  "name": "rich-tutor-doc-screenshots",
+  "private": true,
+  "version": "1.0.0",
+  "devDependencies": {
+    "playwright": "^1.55.0"
+  }
+}

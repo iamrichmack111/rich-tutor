@@ -1,0 +1,52 @@
+direction: right
+
+developer: {
+  label: "MacBook"
+  shape: person
+}
+
+push: {
+  label: "git push"
+}
+
+github: {
+  label: "GitHub"
+}
+
+validate: {
+  label: "Validate"
+}
+
+scan: {
+  label: "Secret Scan"
+}
+
+build: {
+  label: "Docker Build"
+}
+
+sync: {
+  label: "SSH + rsync"
+}
+
+deploy: {
+  label: "richdeploy tutor"
+}
+
+container: {
+  label: "Production\nContainer"
+}
+
+localhealth: {
+  label: ":5085/health"
+}
+
+publichealth: {
+  label: "HTTPS Public\nHealth Check"
+}
+
+developer -> push -> github
+github -> validate -> scan -> build -> sync -> deploy
+deploy -> container
+container -> localhealth
+localhealth -> publichealth

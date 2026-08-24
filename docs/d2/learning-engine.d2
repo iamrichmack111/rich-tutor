@@ -1,0 +1,56 @@
+direction: right
+
+subject: {
+  label: "Subject"
+}
+
+lesson: {
+  label: "Lesson"
+}
+
+learn: {
+  label: "Learn"
+}
+
+visual: {
+  label: "Animated Visual"
+}
+
+shortcut: {
+  label: "Shortcut"
+}
+
+guided: {
+  label: "Guided Tutor"
+}
+
+practice: {
+  label: "Generated Practice"
+}
+
+grade: {
+  label: "Grade Event"
+}
+
+mastery: {
+  label: "Mastery"
+}
+
+review: {
+  label: "Parent / Admin\nReporting"
+}
+
+subject -> lesson
+lesson -> learn
+
+learn -> visual
+learn -> shortcut
+
+lesson -> guided
+lesson -> practice
+
+guided -> grade
+practice -> grade
+
+grade -> mastery
+mastery -> review

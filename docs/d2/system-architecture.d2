@@ -1,0 +1,69 @@
+direction: down
+
+title: {
+  label: "Rich Tutor — Production Architecture"
+  shape: text
+  near: top-center
+}
+
+clients: {
+  label: "Users"
+
+  admin: {
+    label: "Administrator"
+    shape: person
+  }
+
+  parent: {
+    label: "Parent"
+    shape: person
+  }
+
+  student: {
+    label: "Student"
+    shape: person
+  }
+}
+
+dns: {
+  label: "Route 53\ntutor.richmackos.com"
+  shape: cloud
+}
+
+production: {
+  label: "AWS Lightsail"
+
+  nginx: {
+    label: "NGINX\nTLS + Reverse Proxy"
+  }
+
+  docker: {
+    label: "Docker"
+
+    gunicorn: {
+      label: "Gunicorn\n127.0.0.1:5085"
+    }
+
+    flask: {
+      label: "Rich Tutor\nFlask"
+    }
+  }
+
+  persistence: {
+    label: "Persistent Host Storage"
+
+    sqlite: {
+      label: "rich_tutor.db"
+      shape: cylinder
+    }
+  }
+}
+
+clients.admin -> dns
+clients.parent -> dns
+clients.student -> dns
+
+dns -> production.nginx: "HTTPS"
+production.nginx -> production.docker.gunicorn
+production.docker.gunicorn -> production.docker.flask
+production.docker.flask -> production.persistence.sqlite

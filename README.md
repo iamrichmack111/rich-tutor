@@ -1,4 +1,144 @@
 
+<!-- RICH-TUTOR-VISUAL-DOCS-START -->
+
+# Rich Tutor Visual Documentation
+
+Rich Tutor is a containerized visual learning platform with animated lessons,
+guided tutoring, generated practice, mastery tracking, student accounts,
+parent reporting, administrator tools, invite workflows, and automated
+production deployment.
+
+Production:
+
+**https://tutor.richmackos.com**
+
+## Application
+
+![Rich Tutor animated home page](docs/screenshots/01-home.png)
+
+The public landing page introduces the major Rich Tutor learning tracks through
+an animated knowledge graph.
+
+## Production Architecture
+
+![Rich Tutor production architecture](docs/diagrams/system-architecture.svg)
+
+Production traffic follows:
+
+`Browser → Route 53 → NGINX/TLS → Gunicorn → Flask → SQLite`
+
+Gunicorn is exposed only on `127.0.0.1:5085` behind NGINX.
+
+## Learning Engine
+
+![Rich Tutor learning engine](docs/diagrams/learning-engine.svg)
+
+A lesson can combine:
+
+- visual instruction
+- animated explanation
+- memory shortcuts
+- Guided Tutor checkpoints
+- generated practice
+- grading
+- mastery tracking
+- parent/admin reporting
+
+## Account and Family Model
+
+![Rich Tutor account model](docs/diagrams/account-model.svg)
+
+Rich Tutor includes:
+
+- administrator accounts
+- student accounts
+- parent accounts
+- single-use invitation links
+- temporary password workflows
+- forced password changes
+- parent/student relationships
+- account enable/disable controls
+- administrator password resets
+
+## Administrator Portal
+
+![Rich Tutor administrator dashboard](docs/screenshots/03-admin-dashboard.png)
+
+Administrators can create and manage students and parents, link family
+relationships, review student data, manage invitations, and export grades.
+
+## Invitation Management
+
+![Rich Tutor invitation manager](docs/screenshots/04-invite-manager.png)
+
+Invitation URLs allow students and parents to create their own credentials.
+Student invitations can also establish a parent relationship automatically.
+
+## Curriculum
+
+![Rich Tutor curriculum](docs/screenshots/05-curriculum.png)
+
+Rich Tutor has expanded beyond its original arithmetic lessons into a broader
+technical learning platform.
+
+Subject areas include:
+
+- arithmetic
+- fractions
+- algebra
+- statistics
+- trigonometry
+- calculus
+- chemistry
+- Linux
+- PMP mathematics
+
+## Formula and Command Reference
+
+![Rich Tutor reference library](docs/screenshots/06-reference-library.png)
+
+The reference library combines mathematical formulas, learning shortcuts,
+technical commands, and subject-specific reference material.
+
+## Lesson Experience
+
+![Rich Tutor lesson](docs/screenshots/07-lesson.png)
+
+Lesson pages combine detailed written instruction with interactive visual
+teaching, shortcuts, Guided Tutor mode, and generated practice.
+
+## CI/CD Architecture
+
+![Rich Tutor CI/CD](docs/diagrams/cicd.svg)
+
+Production deployments use:
+
+`git push → GitHub Actions → validation → secret scan → Docker build → rsync → richdeploy tutor → health verification`
+
+The pipeline verifies both the local production backend and the public HTTPS
+health endpoint.
+
+## Technology
+
+- Python
+- Flask
+- SQLite
+- Werkzeug
+- Gunicorn
+- Docker
+- Docker Compose
+- NGINX
+- AWS Lightsail
+- Route 53
+- GitHub Actions
+- D2
+- Manim
+- Playwright
+
+<!-- RICH-TUTOR-VISUAL-DOCS-END -->
+
+
+
 # Rich Tutor
 
 No-login Flask math learning app with:
