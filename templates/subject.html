@@ -1,0 +1,32 @@
+
+{% extends "base.html" %}
+{% block title %}{{ category }} • Rich Tutor{% endblock %}
+{% block content %}
+<a class="back" href="/">← Subjects</a>
+<section class="lesson-hero">
+  <div>
+    <p class="eyebrow">SUBJECT DASHBOARD</p>
+    <h1>{{ category }}</h1>
+    <p class="lede">Follow the suggested order or jump directly to the lesson you need. Nothing is hard-locked.</p>
+  </div>
+  <div class="subject-summary" data-subject="{{ category }}">
+    <strong class="subject-mastered-count">0 / {{ lessons|length }}</strong>
+    <span>mastered</span>
+  </div>
+</section>
+
+<div class="subject-path">
+{% for lesson in lessons %}
+  <a class="path-card" data-lesson-id="{{ lesson.id }}" data-category="{{ lesson.category }}" href="/lesson/{{ lesson.slug }}">
+    <div class="path-index">{{ loop.index }}</div>
+    <div class="path-body">
+      <small>{{ lesson.level }}</small>
+      <h3>{{ lesson.title }}</h3>
+      <p>{{ lesson.shortcut }}</p>
+      <div class="mastery-bar"><div class="mastery-fill"></div></div>
+    </div>
+    <span class="mastery-pill">New</span>
+  </a>
+{% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,5 @@
+tutor
+  APP_DIR=/home/ubuntu/rich-tutor
+  PORT=5085
+  DB_FILE=data/rich_tutor.db
+  SERVICE=rich-tutor

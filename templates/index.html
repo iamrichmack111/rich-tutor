@@ -1,0 +1,78 @@
+
+{% extends "base.html" %}
+{% block title %}Rich Tutor{% endblock %}
+{% block content %}
+<section class="hero rich-hero">
+  <div>
+    <p class="eyebrow">VISUAL LEARNING • GUIDED PRACTICE • MASTERY</p>
+    <h1>Rich Tutor</h1>
+    <p class="lede">A visual tutor for mathematics, science, project management, and technical command skills. Learn the concept, memorize the shortcut, then prove mastery.</p>
+    <div class="hero-actions">
+      <a class="primary linkbtn" href="/curriculum">Explore curriculum</a>
+      {% if not auth_user %}<a class="secondary linkbtn" href="/login">Student / Parent login</a>{% endif %}
+    </div>
+  </div>
+  <div class="knowledge-stage" id="knowledgeStage" aria-label="Animated knowledge graph showing Rich Tutor subjects">
+    <svg class="knowledge-lines" viewBox="0 0 600 420" aria-hidden="true">
+      <g id="knowledgeEdges"></g>
+    </svg>
+    <div class="knowledge-core">
+      <span>RT</span><small>RICH TUTOR</small>
+    </div>
+    <button type="button" class="knowledge-node n1" data-topic="Mathematics"><b>∑</b><span>Math</span></button>
+    <button type="button" class="knowledge-node n2" data-topic="Statistics"><b>σ</b><span>Stats</span></button>
+    <button type="button" class="knowledge-node n3" data-topic="Chemistry"><b>H₂O</b><span>Chem</span></button>
+    <button type="button" class="knowledge-node n4" data-topic="Linux Commands"><b>&gt;_</b><span>Linux</span></button>
+    <button type="button" class="knowledge-node n5" data-topic="PMP Math"><b>EV</b><span>PMP</span></button>
+    <button type="button" class="knowledge-node n6" data-topic="Calculus"><b>∫</b><span>Calc</span></button>
+    <div class="knowledge-readout" id="knowledgeReadout"><strong>Knowledge graph</strong><span>Every concept connects to practice and mastery.</span></div>
+  </div>
+</section>
+<section class="public-access-note">
+  {% if not auth_user %}
+  <div>
+    <strong>Sign in to start learning</strong>
+    <span>Lessons, Guided Tutor, Practice, mastery, grades, and study-time tracking are attached to a Rich Tutor account.</span>
+  </div>
+  <a class="primary linkbtn" href="/login">Student / Parent login</a>
+  {% else %}
+  <div>
+    <strong>Welcome, {{ auth_user.display_name }}</strong>
+    <span>Your learning activity can now be tracked in Rich Tutor.</span>
+  </div>
+  {% endif %}
+</section>
+<section class="section">
+  <div class="section-head">
+    <h2>Subjects</h2>
+    <span>{{ categories|length }} learning tracks</span>
+  </div>
+  <div class="subject-grid">
+  {% for category, items in categories.items() %}
+    <a class="subject-card" href="{% if auth_user %}/subject/{{ category|lower|replace('&','and')|replace('/','-')|replace(' ','-') }}{% else %}/login?next=/subject/{{ category|lower|replace('&','and')|replace('/','-')|replace(' ','-') }}{% endif %}">
+      <div class="subject-icon">{{ category[0] }}</div>
+      <div>
+        <h3>{{ category }}</h3>
+        <p>{{ items|length }} lessons</p>
+        <div class="subject-progress" data-category="{{ category }}">
+          <div class="subject-progress-fill"></div>
+        </div>
+      </div>
+    </a>
+  {% endfor %}
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>Continue learning</h2><span>Recommended, never blocked</span></div>
+  <div class="card-grid" id="continueLearning">
+    {% for lesson in lessons[:12] %}
+    <a class="lesson-card" data-lesson-id="{{ lesson.id }}" data-category="{{ lesson.category }}" href="{% if auth_user %}/lesson/{{ lesson.slug }}{% else %}/login?next=/lesson/{{ lesson.slug }}{% endif %}">
+      <div class="lesson-top"><div class="lesson-num">{{ "%02d"|format(lesson.id) }}</div><span class="mastery-pill">New</span></div>
+      <h3>{{ lesson.title }}</h3>
+      <p>{{ lesson.summary }}</p>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

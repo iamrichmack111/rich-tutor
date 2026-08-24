@@ -1,0 +1,14 @@
+
+{% extends "base.html" %}{% block title %}Login • Rich Tutor{% endblock %}
+{% block content %}
+<div class="auth-wrap"><section class="panel auth-card">
+<p class="eyebrow">RICH TUTOR</p><h1>Sign in</h1>
+{% if error %}<div class="feedback bad">{{ error }}</div>{% endif %}
+<form method="post" class="stack-form"><input type="hidden" name="next" value="{{ request.args.get('next','') }}">
+<label>Username<input name="username" required autofocus></label>
+<label>Password<input name="password" type="password" required></label>
+<button class="primary">Sign in</button>
+</form>
+<p class="muted">Default administrator: <code>admin</code> / <code>admin</code>. Change it before public deployment.</p>
+</section></div>
+{% endblock %}

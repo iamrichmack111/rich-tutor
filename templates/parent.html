@@ -1,0 +1,13 @@
+
+{% extends "base.html" %}{% block title %}Parent Portal • Rich Tutor{% endblock %}
+{% block content %}
+<section class="lesson-hero"><div><p class="eyebrow">PARENT PORTAL</p><h1>Student Progress</h1>
+<p class="lede">See study time, grade averages, lesson records, and mastery for linked students.</p></div>
+<a class="primary linkbtn" href="/export/grades.csv">Export grades CSV</a></section>
+<div class="card-grid">
+{% for s,secs,avg in reports %}
+<a class="lesson-card" href="/parent/student/{{s.id}}"><div class="lesson-num">STUDENT</div><h3>{{s.display_name}}</h3>
+<p>{{(secs/3600)|round(2)}} hours tracked • {{avg|round(1)}}% average</p></a>
+{% endfor %}
+</div>
+{% endblock %}

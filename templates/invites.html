@@ -1,0 +1,44 @@
+
+{% extends "base.html" %}{% block title %}Invites • Rich Tutor{% endblock %}
+{% block content %}
+<a class="back" href="/admin">← Admin</a>
+<section class="lesson-hero">
+  <div><p class="eyebrow">ACCOUNT INVITATIONS</p><h1>Invite Links</h1>
+  <p class="lede">Create a one-time link for a student or parent. Student links can automatically attach the new student to an existing parent.</p></div>
+</section>
+<div class="admin-grid">
+<section class="panel">
+<h2>Create invite</h2>
+<form method="post" action="/admin/invites/create" class="stack-form">
+<label>Account type<select name="role" id="inviteRole"><option value="student">Student</option><option value="parent">Parent</option></select></label>
+<label id="inviteParentRow">Attach student to parent<select name="parent_id"><option value="">No parent yet</option>{% for p in parents %}<option value="{{p.id}}">{{p.display_name}}</option>{% endfor %}</select></label>
+<label>Expires in days<input name="days" type="number" value="7" min="1" max="365"></label>
+<button class="primary">Generate invite link</button>
+</form>
+</section>
+<section class="panel">
+<h2>How it works</h2>
+<p class="muted">Each link is single-use. The recipient chooses their own username and password. Once accepted, the link cannot create another account.</p>
+</section>
+</div>
+<section class="panel">
+<h2>Invitations</h2>
+<div class="invite-list">
+{% for i in invites %}
+<div class="invite-row">
+  <div><strong>{{ i.role|title }} invite</strong>{% if i.parent_name %}<small>Linked parent: {{i.parent_name}}</small>{% endif %}</div>
+  <div class="invite-url"><code>{{ request.url_root.rstrip('/') }}/invite/{{i.token}}</code></div>
+  <div>
+  {% if i.used_at %}<span class="invite-status used">Used{% if i.used_name %} by {{i.used_name}}{% endif %}</span>
+  {% else %}<span class="invite-status active">Active</span>{% endif %}
+  </div>
+</div>
+{% else %}<p class="muted">No invitations yet.</p>{% endfor %}
+</div>
+</section>
+<script>
+const role=document.getElementById("inviteRole"), row=document.getElementById("inviteParentRow");
+function sync(){ row.style.display=role.value==="student"?"grid":"none"; }
+role.addEventListener("change",sync);sync();
+</script>
+{% endblock %}

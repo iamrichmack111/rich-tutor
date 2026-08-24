@@ -1,0 +1,28 @@
+
+{% extends "base.html" %}
+{% block title %}Reference • Rich Tutor{% endblock %}
+{% block content %}
+<section class="lesson-hero">
+  <div>
+    <p class="eyebrow">FORMULA + COMMAND LIBRARY</p>
+    <h1>Quick Reference</h1>
+    <p class="lede">A searchable cheat-sheet built from the same lesson data: math formulas, chemistry relationships, PMP equations, Linux commands, and learning shortcuts.</p>
+  </div>
+</section>
+{% for category, items in by_category.items() %}
+<section class="section">
+  <h2>{{ category }}</h2>
+  <div class="reference-grid">
+  {% for lesson in items %}
+    <a class="reference-card" href="/lesson/{{ lesson.slug }}">
+      <small>{{ lesson.title }}</small>
+      <strong>{{ lesson.shortcut }}</strong>
+      {% for ref in lesson.references[:3] %}
+        <div><span>{{ ref.label }}</span><code>{{ ref.value }}</code></div>
+      {% endfor %}
+    </a>
+  {% endfor %}
+  </div>
+</section>
+{% endfor %}
+{% endblock %}

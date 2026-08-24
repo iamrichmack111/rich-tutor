@@ -1,0 +1,33 @@
+
+{% extends "base.html" %}{% block title %}Admin • Rich Tutor{% endblock %}
+{% block content %}
+<section class="lesson-hero"><div><p class="eyebrow">ADMIN PORTAL</p><h1>Rich Tutor Administration</h1>
+<p class="lede">Create students and parents, link families, review time and grades, and export grade records.</p></div>
+<div class="hero-actions"><a class="primary linkbtn" href="/admin/invites">Create invite link</a><a class="secondary linkbtn" href="/export/grades.csv">Export grades CSV</a></div></section>
+
+<div class="admin-grid">
+<section class="panel"><h2>Add student or parent</h2>
+<form class="stack-form" method="post" action="/admin/users/create">
+<label>Role<select name="role"><option value="student">Student</option><option value="parent">Parent</option></select></label>
+<label>Display name<input name="display_name" required></label>
+<label>Username<input name="username" required></label>
+<label>Initial password<input name="password" value="student" required></label>
+<label>Parent for student (optional)<select name="parent_id"><option value="">None</option>{% for p in parents %}<option value="{{p.id}}">{{p.display_name}}</option>{% endfor %}</select></label>
+<button class="primary">Create account</button>
+</form></section>
+
+<section class="panel"><h2>Link parent to student</h2>
+<form class="stack-form" method="post" action="/admin/link">
+<label>Parent<select name="parent_id">{% for p in parents %}<option value="{{p.id}}">{{p.display_name}}</option>{% endfor %}</select></label>
+<label>Student<select name="student_id">{% for s in students %}<option value="{{s.id}}">{{s.display_name}}</option>{% endfor %}</select></label>
+<button class="secondary">Link accounts</button>
+</form></section>
+</div>
+
+<section class="panel"><h2>Student overview</h2><div class="table-wrap"><table>
+<thead><tr><th>Student</th><th>Username</th><th>Time</th><th>Average grade</th><th>Grades</th><th></th></tr></thead>
+<tbody>{% for r in stats %}<tr><td>{{r.display_name}}</td><td>{{r.username}}</td>
+<td>{{(r.seconds/3600)|round(2)}} h</td><td>{{r.avg_grade|round(1)}}%</td><td>{{r.grade_count}}</td>
+<td><a href="/admin/student/{{r.id}}">Report →</a></td></tr>{% endfor %}</tbody>
+</table></div></section>
+{% endblock %}

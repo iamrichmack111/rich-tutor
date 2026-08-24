@@ -1,0 +1,28 @@
+
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}Rich Tutor{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static',filename='css/style.css',v='7') }}">
+</head><body>
+<header class="topbar">
+<a class="brand" href="/">Rich Tutor</a>
+{% if auth_user %}<form class="global-search" action="/search"><input name="q" placeholder="Search lessons, formulas, commands…" value="{{ request.args.get('q','') }}"></form>{% endif %}
+<nav>
+<a href="/">Home</a>
+{% if auth_user %}
+  <a href="/curriculum">Curriculum</a>
+  <a href="/reference">Reference</a>
+  {% if auth_user.role=='admin' %}<a href="/admin">Admin</a>{% endif %}
+  {% if auth_user.role=='parent' %}<a href="/parent">Parent</a>{% endif %}
+  <a href="/logout">Logout</a>
+{% else %}
+  <a href="/login">Login</a>
+{% endif %}
+</nav>
+</header>
+<main class="shell">{% block content %}{% endblock %}</main>
+<script>
+window.RICH_TUTOR_USER={{ {'id':auth_user.id,'role':auth_user.role,'name':auth_user.display_name}|tojson if auth_user else 'null' }};
+</script>
+<script src="{{ url_for('static',filename='js/app.js',v='7') }}"></script>
+</body></html>

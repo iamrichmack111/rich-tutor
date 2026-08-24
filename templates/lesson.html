@@ -1,0 +1,140 @@
+
+{% extends "base.html" %}
+{% block title %}{{ lesson.title }} • Rich Tutor{% endblock %}
+{% block content %}
+<a class="back" href="/subject/{{ lesson.category|lower|replace('&','and')|replace('/','-')|replace(' ','-') }}">← {{ lesson.category }}</a>
+
+<section class="lesson-hero">
+  <div>
+    <p class="eyebrow">{{ lesson.category }} • {{ lesson.level }}</p>
+    <h1>{{ lesson.title }}</h1>
+    <p class="lede">{{ lesson.summary }}</p>
+  </div>
+  <div class="mastery-card" data-current-lesson="{{ lesson.id }}">
+    <small>MASTERY</small>
+    <strong id="lessonMasteryLabel">Learning</strong>
+    <div class="mastery-bar large"><div class="mastery-fill" id="lessonMasteryFill"></div></div>
+    <span id="lessonMasteryPct">0%</span>
+  </div>
+</section>
+
+<div class="lesson-toolbar">
+  <button class="tab-btn active" data-tab="learn">Learn</button>
+  <button class="tab-btn" data-tab="guided">Guided Tutor</button>
+  <button class="tab-btn" data-tab="shortcut">Shortcut</button>
+  <button class="tab-btn" data-tab="practice">Practice</button>
+</div>
+
+<div class="lesson-layout">
+<article>
+  <section class="tab-panel active" id="tab-learn">
+    <section class="panel">
+      <h2>Visual lesson</h2>
+      <div class="animation-stage">
+        <div class="visual-title">{{ lesson.problem }}</div>
+        <div id="visualCanvas" class="visual-canvas"></div>
+        <div class="animation-controls">
+          <button class="primary" id="replayBtn">Replay animation</button>
+          <button class="secondary" id="stepBtn">Next step</button>
+          <button class="secondary" id="resetBtn">Reset</button>
+        </div>
+      </div>
+      <script id="lessonAnimationData" type="application/json">{{ animation_json|safe }}</script>
+      <script id="lessonData" type="application/json">{{ lesson_json|safe }}</script>
+      {% if video_exists %}
+      <div class="video-section">
+        <video controls preload="metadata" class="lesson-video">
+          <source src="{{ url_for('static', filename=lesson.video) }}" type="video/mp4">
+        </video>
+      </div>
+      {% endif %}
+    </section>
+
+    <section class="panel">
+      <h2>Step-by-step</h2>
+      <div class="steps">
+      {% for step in lesson.steps %}
+        <div class="step">
+          <div class="step-index">{{ loop.index }}</div>
+          <div><h3>{{ step.title }}</h3><div class="equation">{{ step.equation }}</div><p>{{ step.explanation }}</p></div>
+        </div>
+      {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel"><h2>Why it works</h2><p>{{ lesson.why }}</p></section>
+  </section>
+
+  <section class="tab-panel" id="tab-guided">
+    <section class="panel guided-lab">
+      <p class="eyebrow">INTERACTIVE TUTOR</p>
+      <h2>What comes next?</h2>
+      <div id="guidedPrompt" class="guided-prompt"></div>
+      <input id="guidedAnswer" class="guided-input" placeholder="Type what you think comes next">
+      <div class="guided-actions">
+        <button class="primary" id="guidedCheck">Check</button>
+        <button class="secondary" id="guidedHint">Hint</button>
+        <button class="secondary" id="guidedReveal">Reveal</button>
+      </div>
+      <div id="guidedFeedback" class="feedback"></div>
+      <div id="guidedHintBox" class="hint-box"></div>
+      <div class="guided-progress"><div id="guidedProgressFill"></div></div>
+    </section>
+  </section>
+
+  <section class="tab-panel" id="tab-shortcut">
+    <section class="panel shortcut-page">
+      <p class="eyebrow">QUICK REFERENCE</p>
+      <h2>{{ lesson.shortcut }}</h2>
+      <div class="shortcut-poster">
+      {% for line in lesson.shortcut_literature %}
+        <div class="shortcut-line">{{ line }}</div>
+      {% endfor %}
+      </div>
+      <div class="reference-grid single">
+      {% for ref in lesson.references %}
+        <div class="reference-card"><small>{{ ref.label }}</small><strong>{{ ref.value }}</strong></div>
+      {% endfor %}
+      </div>
+    </section>
+  </section>
+
+  <section class="tab-panel" id="tab-practice">
+    <section class="panel practice-lab">
+      <div class="practice-head">
+        <div><p class="eyebrow">MASTERY PRACTICE</p><h2>Unlimited practice</h2></div>
+        <select id="difficultySelect"><option value="easy">Easy</option><option value="standard" selected>Standard</option><option value="challenge">Challenge</option></select>
+      </div>
+      <div class="generated-problem" id="generatedProblem">Loading…</div>
+      <div class="answer-row">
+        <input id="practiceAnswer" autocomplete="off" placeholder="Type your answer">
+        <button class="primary" id="checkAnswer">Check</button>
+        <button class="secondary" id="newProblem">New problem</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="hintBox" class="hint-box"></div>
+      <button class="secondary" id="showHint">Show hint</button>
+      <div class="session-stats">
+        <span>Correct <b id="correctCount">0</b></span>
+        <span>Attempts <b id="attemptCount">0</b></span>
+        <span>Streak <b id="streakCount">0</b></span>
+      </div>
+    </section>
+  </section>
+</article>
+
+<aside>
+  <section class="panel sticky">
+    <h2>Quick notes</h2>
+    <ul>{% for note in lesson.notes %}<li>{{ note }}</li>{% endfor %}</ul>
+    <h3>Suggested next</h3>
+    {% if next_lesson %}
+      <a class="next-card" href="/lesson/{{ next_lesson.slug }}">{{ next_lesson.title }} →</a>
+    {% else %}
+      <p>You've reached the end of this subject track.</p>
+    {% endif %}
+    {% if prev_lesson %}<a class="prev-card" href="/lesson/{{ prev_lesson.slug }}">← {{ prev_lesson.title }}</a>{% endif %}
+  </section>
+</aside>
+</div>
+{% endblock %}

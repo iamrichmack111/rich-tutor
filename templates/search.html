@@ -1,0 +1,21 @@
+
+{% extends "base.html" %}
+{% block title %}Search • Rich Tutor{% endblock %}
+{% block content %}
+<section class="lesson-hero">
+  <div>
+    <p class="eyebrow">GLOBAL SEARCH</p>
+    <h1>{% if q %}Results for “{{ q }}”{% else %}Search Rich Tutor{% endif %}</h1>
+    <p class="lede">{{ results|length }} matching lessons, formulas, shortcuts, or commands.</p>
+  </div>
+</section>
+<div class="card-grid">
+{% for lesson in results %}
+<a class="lesson-card" href="/lesson/{{ lesson.slug }}">
+  <div class="lesson-num">{{ lesson.category }}</div>
+  <h3>{{ lesson.title }}</h3>
+  <p>{{ lesson.shortcut }}</p>
+</a>
+{% endfor %}
+</div>
+{% endblock %}

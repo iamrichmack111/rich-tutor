@@ -1,0 +1,26 @@
+
+{% extends "base.html" %}
+{% block title %}Curriculum • Rich Tutor{% endblock %}
+{% block content %}
+<section class="lesson-hero">
+  <div>
+    <p class="eyebrow">LEARNING PATH</p>
+    <h1>Curriculum</h1>
+    <p class="lede">Lessons unlock as prerequisites are completed. You can still open any lesson from the main lesson list if you want to review ahead.</p>
+  </div>
+</section>
+
+<div class="curriculum-list">
+{% for lesson in lessons %}
+  <a class="curriculum-node" data-lesson-id="{{ lesson.id }}" data-prereqs='{{ lesson.prerequisites|tojson }}' href="/lesson/{{ lesson.slug }}">
+    <div class="curr-num">{{ lesson.id }}</div>
+    <div>
+      <small>{{ lesson.category }} • {{ lesson.level }}</small>
+      <h3>{{ lesson.title }}</h3>
+      <p>{{ lesson.shortcut }}</p>
+    </div>
+    <span class="curr-status">Ready</span>
+  </a>
+{% endfor %}
+</div>
+{% endblock %}

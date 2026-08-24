@@ -1,0 +1,14 @@
+[Unit]
+Description=Math Tutor Flask/Gunicorn
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/math-tutor
+Environment="PATH=/home/ubuntu/math-tutor/.venv/bin"
+ExecStart=/home/ubuntu/math-tutor/.venv/bin/gunicorn -w 2 -b 127.0.0.1:5055 app:app
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

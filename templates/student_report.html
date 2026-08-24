@@ -1,0 +1,24 @@
+
+{% extends "base.html" %}{% block title %}{{student.display_name}} • Rich Tutor{% endblock %}
+{% block content %}
+<a class="back" href="/{{portal}}">← Back</a>
+<section class="lesson-hero"><div><p class="eyebrow">STUDENT REPORT</p><h1>{{student.display_name}}</h1>
+<p class="lede">Time, grades, and lesson mastery.</p></div></section>
+
+<section class="panel"><h2>Grades</h2><div class="table-wrap"><table>
+<thead><tr><th>Lesson</th><th>Score</th><th>Source</th><th>Attempts</th><th>Date</th></tr></thead>
+<tbody>{% for g in grades %}<tr><td>{{ lessons.get(g.lesson_id,{}).get('title','Lesson '+g.lesson_id|string) }}</td>
+<td>{{g.score|round(1)}}%</td><td>{{g.source}}</td><td>{{g.attempts}}</td><td>{{g.created_at[:10]}}</td></tr>{% endfor %}</tbody>
+</table></div></section>
+
+<section class="panel"><h2>Tracked study sessions</h2><div class="table-wrap"><table>
+<thead><tr><th>Lesson</th><th>Started</th><th>Minutes</th></tr></thead>
+<tbody>{% for s in sessions %}<tr><td>{{ lessons.get(s.lesson_id,{}).get('title','General') if s.lesson_id else 'General' }}</td>
+<td>{{s.started_at[:19]}}</td><td>{{(s.seconds/60)|round(1)}}</td></tr>{% endfor %}</tbody>
+</table></div></section>
+
+<section class="panel"><h2>Mastery</h2><div class="table-wrap"><table>
+<thead><tr><th>Lesson</th><th>Mastery</th><th>Updated</th></tr></thead>
+<tbody>{% for m in mastery %}<tr><td>{{ lessons.get(m.lesson_id,{}).get('title','Lesson') }}</td><td>{{m.score|round(1)}}%</td><td>{{m.updated_at[:10]}}</td></tr>{% endfor %}</tbody>
+</table></div></section>
+{% endblock %}

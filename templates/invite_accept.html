@@ -1,0 +1,22 @@
+
+{% extends "base.html" %}{% block title %}Join Rich Tutor{% endblock %}
+{% block content %}
+<div class="auth-wrap"><section class="panel auth-card">
+<p class="eyebrow">RICH TUTOR INVITATION</p>
+{% if success %}
+<h1>Account created</h1><p>Your username is <strong>{{username}}</strong>.</p><a class="primary linkbtn" href="/login">Sign in to Rich Tutor</a>
+{% elif unavailable %}
+<h1>Invite unavailable</h1><p class="muted">{% if expired %}This invitation has expired.{% else %}This invitation has already been used.{% endif %}</p>
+{% else %}
+<h1>Create your {{invite.role}} account</h1>
+<p class="lede">Your invite gives you access to Rich Tutor's visual lessons, guided tutor, practice, and progress tools.</p>
+{% if error %}<div class="feedback bad">{{error}}</div>{% endif %}
+<form method="post" class="stack-form">
+<label>Display name<input name="display_name" required></label>
+<label>Username<input name="username" required autocomplete="username"></label>
+<label>Password<input name="password" type="password" required autocomplete="new-password"></label>
+<button class="primary">Create account</button>
+</form>
+{% endif %}
+</section></div>
+{% endblock %}
