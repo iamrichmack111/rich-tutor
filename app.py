@@ -86,7 +86,14 @@ def init_db():
     if not row:
         conn.execute(
             "INSERT INTO users(username,password_hash,role,display_name,must_change_password,created_at) VALUES(?,?,?,?,?,?)",
-            (os.environ.get("ADMIN_USERNAME","admin"), generate_password_hash(os.environ.get("ADMIN_PASSWORD","admin")), "admin", "Administrator", datetime.now(timezone.utc).isoformat())
+                (
+                    os.environ.get("ADMIN_USERNAME", "admin"),
+                    generate_password_hash(os.environ.get("ADMIN_PASSWORD", "admin")),
+                    "admin",
+                    "Administrator",
+                    0,
+                    datetime.now(timezone.utc).isoformat(),
+                )
         )
     conn.commit()
     conn.close()
@@ -109,6 +116,10 @@ def require_role(*roles):
     if not u or u["role"] not in roles:
         return None
     return u
+
+
+def require_learning_access():
+    return current_user()
 
 def slugify_category(name):
     return name.lower().replace("&","and").replace("/","-").replace(" ","-")
@@ -143,10 +154,21 @@ def login():
         conn.close()
         if u and check_password_hash(u["password_hash"], password):
             session["user_id"] = u["id"]
+
+            if u["must_change_password"]:
+                return redirect("/account/change-password")
+
+            target = request.args.get("next") or request.form.get("next")
+
+            if target and target.startswith("/") and not target.startswith("//"):
+                return redirect(target)
+
             if u["role"] == "admin":
                 return redirect("/admin")
+
             if u["role"] == "parent":
                 return redirect("/parent")
+
             return redirect("/")
         return render_template("login.html", error="Invalid username or password.")
     return render_template("login.html")
@@ -219,6 +241,9 @@ def reference():
 
 @app.route("/curriculum")
 def curriculum():
+    if not require_learning_access():
+        return redirect(url_for("login", next=request.path))
+
     return render_template("curriculum.html", lessons=load_lessons())
 
 @app.route("/roadmap")
