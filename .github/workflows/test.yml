@@ -1,0 +1,32 @@
+name: Rich Tutor Tests
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Python syntax
+        run: python -m py_compile app.py
+
+      - name: Tests
+        run: pytest
+
+      - name: Docker build
+        run: docker build -t rich-tutor-test .

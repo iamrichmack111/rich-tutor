@@ -1,141 +1,44 @@
+<!-- RICH-TUTOR-BADGES-START -->
+<p align="center">
+  <a href="https://github.com/iamrichmack111/rich-tutor/actions/workflows/deploy.yml">
+    <img alt="CI/CD" src="https://github.com/iamrichmack111/rich-tutor/actions/workflows/deploy.yml/badge.svg">
+  </a>
+  <a href="https://github.com/iamrichmack111/rich-tutor/actions/workflows/test.yml">
+    <img alt="Tests" src="https://github.com/iamrichmack111/rich-tutor/actions/workflows/test.yml/badge.svg">
+  </a>
+  <a href="https://github.com/iamrichmack111/rich-tutor/releases">
+    <img alt="Release" src="https://img.shields.io/github/v/release/iamrichmack111/rich-tutor">
+  </a>
+  <a href="https://github.com/iamrichmack111/rich-tutor/pkgs/container/rich-tutor">
+    <img alt="GHCR" src="https://img.shields.io/badge/container-ghcr.io-2496ED?logo=docker&logoColor=white">
+  </a>
+  <a href="https://tutor.richmackos.com/health">
+    <img alt="Production" src="https://img.shields.io/badge/production-tutor.richmackos.com-success">
+  </a>
+</p>
+<!-- RICH-TUTOR-BADGES-END -->
 
-<!-- RICH-TUTOR-VISUAL-DOCS-START -->
 
-# Rich Tutor Visual Documentation
+## Engineering Highlights
 
-Rich Tutor is a containerized visual learning platform with animated lessons,
-guided tutoring, generated practice, mastery tracking, student accounts,
-parent reporting, administrator tools, invite workflows, and automated
-production deployment.
+Rich Tutor is designed as both an educational application and a production systems project.
 
-Production:
+- **Role-based platform:** administrator, parent, and student access models
+- **Guided learning:** animated lessons, Guided Tutor checkpoints, practice generation, mastery tracking
+- **Persistent educational data:** accounts, invites, grades, mastery, and study-time records in SQLite
+- **Production isolation:** Gunicorn binds to loopback behind NGINX/TLS
+- **Containerized runtime:** Docker + Docker Compose with persistent host storage
+- **Automated delivery:** GitHub Actions → SSH/rsync → `richdeploy tutor` → readiness verification
+- **Visual documentation:** D2 architecture diagrams + Playwright production screenshots
+- **Operations:** public `/health`, database backups, NGINX proxy, Route 53, TLS, AWS Lightsail
 
-**https://tutor.richmackos.com**
+### Deployment pipeline
 
-## Application
+![Rich Tutor CI/CD architecture](docs/diagrams/cicd.svg)
 
-![Rich Tutor animated home page](docs/screenshots/01-home.png)
-
-The public landing page introduces the major Rich Tutor learning tracks through
-an animated knowledge graph.
-
-## Production Architecture
+### Production architecture
 
 ![Rich Tutor production architecture](docs/diagrams/system-architecture.svg)
-
-Production traffic follows:
-
-`Browser → Route 53 → NGINX/TLS → Gunicorn → Flask → SQLite`
-
-Gunicorn is exposed only on `127.0.0.1:5085` behind NGINX.
-
-## Learning Engine
-
-![Rich Tutor learning engine](docs/diagrams/learning-engine.svg)
-
-A lesson can combine:
-
-- visual instruction
-- animated explanation
-- memory shortcuts
-- Guided Tutor checkpoints
-- generated practice
-- grading
-- mastery tracking
-- parent/admin reporting
-
-## Account and Family Model
-
-![Rich Tutor account model](docs/diagrams/account-model.svg)
-
-Rich Tutor includes:
-
-- administrator accounts
-- student accounts
-- parent accounts
-- single-use invitation links
-- temporary password workflows
-- forced password changes
-- parent/student relationships
-- account enable/disable controls
-- administrator password resets
-
-## Administrator Portal
-
-![Rich Tutor administrator dashboard](docs/screenshots/03-admin-dashboard.png)
-
-Administrators can create and manage students and parents, link family
-relationships, review student data, manage invitations, and export grades.
-
-## Invitation Management
-
-![Rich Tutor invitation manager](docs/screenshots/04-invite-manager.png)
-
-Invitation URLs allow students and parents to create their own credentials.
-Student invitations can also establish a parent relationship automatically.
-
-## Curriculum
-
-![Rich Tutor curriculum](docs/screenshots/05-curriculum.png)
-
-Rich Tutor has expanded beyond its original arithmetic lessons into a broader
-technical learning platform.
-
-Subject areas include:
-
-- arithmetic
-- fractions
-- algebra
-- statistics
-- trigonometry
-- calculus
-- chemistry
-- Linux
-- PMP mathematics
-
-## Formula and Command Reference
-
-![Rich Tutor reference library](docs/screenshots/06-reference-library.png)
-
-The reference library combines mathematical formulas, learning shortcuts,
-technical commands, and subject-specific reference material.
-
-## Lesson Experience
-
-![Rich Tutor lesson](docs/screenshots/07-lesson.png)
-
-Lesson pages combine detailed written instruction with interactive visual
-teaching, shortcuts, Guided Tutor mode, and generated practice.
-
-## CI/CD Architecture
-
-![Rich Tutor CI/CD](docs/diagrams/cicd.svg)
-
-Production deployments use:
-
-`git push → GitHub Actions → validation → secret scan → Docker build → rsync → richdeploy tutor → health verification`
-
-The pipeline verifies both the local production backend and the public HTTPS
-health endpoint.
-
-## Technology
-
-- Python
-- Flask
-- SQLite
-- Werkzeug
-- Gunicorn
-- Docker
-- Docker Compose
-- NGINX
-- AWS Lightsail
-- Route 53
-- GitHub Actions
-- D2
-- Manim
-- Playwright
-
-<!-- RICH-TUTOR-VISUAL-DOCS-END -->
 
 
 
@@ -315,3 +218,22 @@ scripts, and GitHub Actions CI/CD. See `DEPLOYMENT.md`.
 - Admin can manage any parent/student account, disable/enable it, reset its password,
   and link/unlink parent/student relationships.
 - Password resets force a new password on the next login.
+
+
+## Local Validation
+
+Run the same basic checks used by CI:
+
+```bash
+python3 -m py_compile app.py
+pytest
+docker build -t rich-tutor-ci .
+```
+
+Or use:
+
+```bash
+make ci
+```
+
+The automated test suite currently verifies health checks, authentication boundaries, administrator login, invitation management, temporary-password enforcement, and password-reset behavior.
