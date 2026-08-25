@@ -1,0 +1,25 @@
+name: Bug
+description: Report a Rich Tutor defect
+title: "[BUG] "
+labels:
+  - bug
+body:
+  - type: textarea
+    attributes:
+      label: Problem
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Expected behavior
+
+  - type: textarea
+    attributes:
+      label: Validation / logs
