@@ -32,7 +32,9 @@ jobs:
         run: python -m py_compile app.py
 
       - name: Run tests
-        run: pytest
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: pytest -v
 
       - name: Basic secret scan
         shell: bash
